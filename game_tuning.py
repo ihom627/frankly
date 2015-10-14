@@ -8,6 +8,9 @@ DEBUG = 0
 
 #######################################################################################
 # game_tuning.py
+#  
+# How to run:
+# python game_tuning.py
 #
 # Objective:
 #   To dynamically tune the difficulty parameters for a level based on
@@ -22,7 +25,7 @@ DEBUG = 0
 # Decisions and outline:
 #   STEP1: Build K-centroid model of 5 tuning parameters for each level, 
 #          where a centroid is the mean value for the tuning parameters
-           Optimize on the number of attempts by keeping track of those tunning parameter values.
+#           Optimize on the number of attempts by keeping track of those tunning parameter values.
 #         
 #   Parse each entry in data file
 #      Separate according to level
