@@ -9,6 +9,10 @@ DEBUG = 0
 #######################################################################################
 # game_tuning.py
 #  
+# History:
+# 10/14/15 Added user skill as a parameter to optimize tuning parameters
+#
+#
 # How to run:
 # python game_tuning.py
 #
@@ -16,6 +20,8 @@ DEBUG = 0
 #   To dynamically tune the difficulty parameters for a level based on
 #       - the saw tooth curve
 #       - # attempts a user has done on that level
+#       - the user skill level
+#         NOTE: the user skill level is sparse in the 10,000 dataset, to divide into 10 groups
 #
 # Assumptions:
 #   dataset.txt has 10,000 entries with format
@@ -61,7 +67,7 @@ saw_tooth_curve_dictionary = dict([(1,1), (2,2), (3,4), (4,6), (5,2), (6,3), (7,
 #MACROS
 LEVELS = 11
 ATTEMPTS = 11
-#USER_SKILL = 11
+USER_SKILL = 11
 
 def game_tuning(saw_tooth_curve_dict, input_file):
 
@@ -72,19 +78,19 @@ def game_tuning(saw_tooth_curve_dict, input_file):
     #init
     for i in range (1, LEVELS):
         for j in range (0, ATTEMPTS ):
-            #for k in range (0, USER_SKILL):
-            #print "i = %d and j = %d and k = %d" % (i, j, k)
-            level_values_table[i][j]["param1_running_total"] = 0
-            level_values_table[i][j]["param2_running_total"] = 0
-            level_values_table[i][j]["param3_running_total"] = 0
-            level_values_table[i][j]["param4_running_total"] = 0
-            level_values_table[i][j]["param5_running_total"] = 0
-            level_values_table[i][j]["param1_centroid"] = 0
-            level_values_table[i][j]["param2_centroid"] = 0
-            level_values_table[i][j]["param3_centroid"] = 0
-            level_values_table[i][j]["param4_centroid"] = 0
-            level_values_table[i][j]["param5_centroid"] = 0
-            level_values_table[i][j]["count"] = 0
+            for k in range (0, USER_SKILL):
+                #print "i = %d and j = %d and k = %d" % (i, j, k)
+                level_values_table[i][j][k]["param1_running_total"] = 0
+                level_values_table[i][j][k]["param2_running_total"] = 0
+                level_values_table[i][j][k]["param3_running_total"] = 0
+                level_values_table[i][j][k]["param4_running_total"] = 0
+                level_values_table[i][j][k]["param5_running_total"] = 0
+                level_values_table[i][j][k]["param1_centroid"] = 0
+                level_values_table[i][j][k]["param2_centroid"] = 0
+                level_values_table[i][j][k]["param3_centroid"] = 0
+                level_values_table[i][j][k]["param4_centroid"] = 0
+                level_values_table[i][j][k]["param5_centroid"] = 0
+                level_values_table[i][j][k]["count"] = 0
           
     #print out saw_tooth_curve
     print "##################### SAW TOOTH CURVE #############################"
@@ -107,7 +113,7 @@ def game_tuning(saw_tooth_curve_dict, input_file):
             param3 = int(param3)
             param4 = int(param4)
             param5 = int(param5)
-            user_skill = int(user_skill)
+            user_skill = int(user_skill)/10
             attempts = int(attempts)
             level = int(level)
             
@@ -115,70 +121,70 @@ def game_tuning(saw_tooth_curve_dict, input_file):
                 print "id = %d, param1 = %d, param2 = %d, param3 = %d, param4 = %d, param5 = %d, user_skill = %d, attempts = %d, level = %d" % (id, param1, param2, param3, param4, param5, user_skill, attempts, level)
 
             #running total for centroid model
-            level_values_table[level][attempts]["param1_running_total"] += param1
-            level_values_table[level][attempts]["param2_running_total"] += param2
-            level_values_table[level][attempts]["param3_running_total"] += param3
-            level_values_table[level][attempts]["param4_running_total"] += param4
-            level_values_table[level][attempts]["param5_running_total"] += param5
-            level_values_table[level][attempts]["count"] += 1
+            level_values_table[level][attempts][user_skill]["param1_running_total"] += param1
+            level_values_table[level][attempts][user_skill]["param2_running_total"] += param2
+            level_values_table[level][attempts][user_skill]["param3_running_total"] += param3
+            level_values_table[level][attempts][user_skill]["param4_running_total"] += param4
+            level_values_table[level][attempts][user_skill]["param5_running_total"] += param5
+            level_values_table[level][attempts][user_skill]["count"] += 1
 
 
     #print running totals
     if (DEBUG):
         for i in range (1, LEVELS):
             for j in range (0, ATTEMPTS ):
-                #for k in range (0, USER_SKILL ):
-                print "Level = %d and Attempt = %d " % (i, j)
-                print "  param1_running_total %d" % level_values_table[i][j]["param1_running_total"] 
-                print "  param2_running_total %d" % level_values_table[i][j]["param2_running_total"]
-                print "  param3_running_total %d" % level_values_table[i][j]["param3_running_total"]
-                print "  param4_running_total %d" % level_values_table[i][j]["param4_running_total"]
-                print "  param5_running_total %d" % level_values_table[i][j]["param5_running_total"] 
-                print "  count %d" % level_values_table[i][j]["count"] 
+                for k in range (0, USER_SKILL ):
+                    print "Level = %d and Attempt = %d and User_skill_group = %d " % (i, j, k)
+                    print "  param1_running_total %d" % level_values_table[i][j][k]["param1_running_total"] 
+                    print "  param2_running_total %d" % level_values_table[i][j][k]["param2_running_total"]
+                    print "  param3_running_total %d" % level_values_table[i][j][k]["param3_running_total"]
+                    print "  param4_running_total %d" % level_values_table[i][j][k]["param4_running_total"]
+                    print "  param5_running_total %d" % level_values_table[i][j][k]["param5_running_total"] 
+                    print "  count %d" % level_values_table[i][j][k]["count"] 
 
     #calculate centroid
     for i in range (1, LEVELS):
         for j in range (0, ATTEMPTS ):
-                #for k in range (0, USER_SKILL ):
-                #print "Level = %d and Attempt = %d and User_skill_group = %d" % (i, j, k)
-                if level_values_table[i][j]["count"] != 0:
-                    level_values_table[i][j]["param1_centroid"] = level_values_table[i][j]["param1_running_total"] / level_values_table[i][j]["count"]
-                    level_values_table[i][j]["param2_centroid"] = level_values_table[i][j]["param2_running_total"] / level_values_table[i][j]["count"]
-                    level_values_table[i][j]["param3_centroid"] = level_values_table[i][j]["param3_running_total"] / level_values_table[i][j]["count"]
-                    level_values_table[i][j]["param4_centroid"] = level_values_table[i][j]["param4_running_total"] / level_values_table[i][j]["count"]
-                    level_values_table[i][j]["param5_centroid"] = level_values_table[i][j]["param5_running_total"] / level_values_table[i][j]["count"]
+            for k in range (0, USER_SKILL ):
+            #print "Level = %d and Attempt = %d and User_skill_group = %d" % (i, j, k)
+                if level_values_table[i][j][k]["count"] != 0:
+                    level_values_table[i][j][k]["param1_centroid"] = level_values_table[i][j][k]["param1_running_total"] / level_values_table[i][j][k]["count"]
+                    level_values_table[i][j][k]["param2_centroid"] = level_values_table[i][j][k]["param2_running_total"] / level_values_table[i][j][k]["count"]
+                    level_values_table[i][j][k]["param3_centroid"] = level_values_table[i][j][k]["param3_running_total"] / level_values_table[i][j][k]["count"]
+                    level_values_table[i][j][k]["param4_centroid"] = level_values_table[i][j][k]["param4_running_total"] / level_values_table[i][j][k]["count"]
+                    level_values_table[i][j][k]["param5_centroid"] = level_values_table[i][j][k]["param5_running_total"] / level_values_table[i][j][k]["count"]
 
 
     #print running totals and centroids
     if (DEBUG):
         for i in range (1, LEVELS):
             for j in range (0, ATTEMPTS ):
-                #for k in range (0, USER_SKILL ):
-                print "Level = %d and Attempt = %d " % (i, j)
-                print "  param1_running_total %d" % level_values_table[i][j]["param1_running_total"] 
-                print "  param1_centroid %d" % level_values_table[i][j]["param1_centroid"] 
-                print "  param2_running_total %d" % level_values_table[i][j]["param2_running_total"]
-                print "  param2_centroid %d" % level_values_table[i][j]["param2_centroid"]
-                print "  param3_running_total %d" % level_values_table[i][j]["param3_running_total"]
-                print "  param3_centroid %d" % level_values_table[i][j]["param3_centroid"]
-                print "  param4_running_total %d" % level_values_table[i][j]["param4_running_total"]
-                print "  param4_centroid %d" % level_values_table[i][j]["param4_centroid"]
-                print "  param5_running_total %d" % level_values_table[i][j]["param5_running_total"] 
-                print "  param5_centroid %d" % level_values_table[i][j]["param5_centroid"] 
-                print "  count %d" % level_values_table[i][j]["count"] 
+                for k in range (0, USER_SKILL ):
+                    print "Level = %d and Attempt = %d and User_skill_group = %d " % (i, j, k)
+                    print "  param1_running_total %d" % level_values_table[i][j][k]["param1_running_total"] 
+                    print "  param1_centroid %d" % level_values_table[i][j][k]["param1_centroid"] 
+                    print "  param2_running_total %d" % level_values_table[i][j][k]["param2_running_total"]
+                    print "  param2_centroid %d" % level_values_table[i][j][k]["param2_centroid"]
+                    print "  param3_running_total %d" % level_values_table[i][j][k]["param3_running_total"]
+                    print "  param3_centroid %d" % level_values_table[i][j][k]["param3_centroid"]
+                    print "  param4_running_total %d" % level_values_table[i][j][k]["param4_running_total"]
+                    print "  param4_centroid %d" % level_values_table[i][j][k]["param4_centroid"]
+                    print "  param5_running_total %d" % level_values_table[i][j][k]["param5_running_total"] 
+                    print "  param5_centroid %d" % level_values_table[i][j][k]["param5_centroid"] 
+                    print "  count %d" % level_values_table[i][j][k]["count"] 
 
 
     #print out centroids
     print "################ Centroid Values for Tuning Parameters #######################"
     for i in range (1, LEVELS):
         for j in range (0, ATTEMPTS ):
-            #for k in range (0, USER_SKILL ):
-            print "Level = %d and Attempt = %d " % (i, j)
-            print "  param1_centroid %d" % level_values_table[i][j]["param1_centroid"]
-            print "  param2_centroid %d" % level_values_table[i][j]["param2_centroid"]
-            print "  param3_centroid %d" % level_values_table[i][j]["param3_centroid"]
-            print "  param4_centroid %d" % level_values_table[i][j]["param4_centroid"]
-            print "  param5_centroid %d" % level_values_table[i][j]["param5_centroid"]
+            for k in range (0, USER_SKILL ):
+                print "Level = %d and Attempt = %d and User_skill_group = %d " % (i, j, k)
+                print "  param1_centroid %d" % level_values_table[i][j][k]["param1_centroid"]
+                print "  param2_centroid %d" % level_values_table[i][j][k]["param2_centroid"]
+                print "  param3_centroid %d" % level_values_table[i][j][k]["param3_centroid"]
+                print "  param4_centroid %d" % level_values_table[i][j][k]["param4_centroid"]
+                print "  param5_centroid %d" % level_values_table[i][j][k]["param5_centroid"]
     print "################ END Centroid Values for Tuning Parameters ####################"
  
 
@@ -202,12 +208,12 @@ def game_tuning(saw_tooth_curve_dict, input_file):
             param3 = int(param3)
             param4 = int(param4)
             param5 = int(param5)
-            user_skill = int(user_skill)
+            user_skill = int(user_skill)/10
             attempts = int(attempts)
             level = int(level)
             
             #print "id = %d, param1 = %d, param2 = %d, param3 = %d, param4 = %d, param5 = %d, user_skill = %d, attempts = %d, level = %d" % (id, param1, param2, param3, param4, param5, user_skill, attempts, level)
-            print "id = %d has attempt %d on level %d" % (id, attempts, level)
+            print "id = %d has attempt %d on level %d and user_skill_group = %d " % (id, attempts, level, user_skill)
 
 
             #check if current attempt is on saw tooth curve
@@ -219,7 +225,7 @@ def game_tuning(saw_tooth_curve_dict, input_file):
                 print "\tOutput current param1 = %d, param2 = %d, param3 = %d, param4 = %d, param5 = %d" % (param1, param2, param3, param4, param5)
             else:
                 print "\t==> Current attempt %d > saw tooth curve %d, change tuning parameters." % (attempts, saw_tooth_curve_dict[level])
-                print "\tApply saw tooth curve centroid param1 = %d, param2 = %d, param3 = %d, param4 = %d, param5 = %d" %(level_values_table[level][saw_tooth_curve_dict[level]]["param1_centroid"], level_values_table[level][saw_tooth_curve_dict[level]]["param2_centroid"], level_values_table[level][saw_tooth_curve_dict[level]]["param3_centroid"], level_values_table[level][saw_tooth_curve_dict[level]]["param4_centroid"], level_values_table[level][saw_tooth_curve_dict[level]]["param5_centroid"])
+                print "\tApply saw tooth curve centroid param1 = %d, param2 = %d, param3 = %d, param4 = %d, param5 = %d" %(level_values_table[level][saw_tooth_curve_dict[level]][user_skill]["param1_centroid"], level_values_table[level][saw_tooth_curve_dict[level]][user_skill]["param2_centroid"], level_values_table[level][saw_tooth_curve_dict[level]][user_skill]["param3_centroid"], level_values_table[level][saw_tooth_curve_dict[level]][user_skill]["param4_centroid"], level_values_table[level][saw_tooth_curve_dict[level]][user_skill]["param5_centroid"])
 
         print "################### END User data ########################################" 
 
